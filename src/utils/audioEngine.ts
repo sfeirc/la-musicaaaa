@@ -37,6 +37,13 @@ export class AudioEngine {
     // Stop any currently playing note
     this.stopCurrentNote();
 
+    // Handle silence (frequency 0)
+    if (frequency === 0) {
+      // Just wait for the duration without playing anything
+      await new Promise(resolve => setTimeout(resolve, duration * 1000));
+      return;
+    }
+
     // Create oscillator and gain nodes
     this.currentOscillator = this.audioContext.createOscillator();
     this.currentGain = this.audioContext.createGain();

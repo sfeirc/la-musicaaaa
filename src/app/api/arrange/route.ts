@@ -9,10 +9,20 @@ const openai = new OpenAI({
 
 // Define the schema for a single note
 const NoteSchema = z.object({
-  frequency: z.number().min(80).max(4000).describe("Fréquence en Hz (80-4000) - plage musicale standard"),
+  frequency: z.number().min(0).max(4000).describe("Fréquence en Hz (0 pour silence, 80-4000 pour notes)"),
   duration: z.number().min(0.01).max(10).describe("Durée en secondes (0.01-10)"),
-  note_name: z.string().optional().describe("Nom de la note optionnel comme 'Do4', 'Fa#5', etc."),
+  note_name: z.string().optional().describe("Nom de la note optionnel comme 'Do4', 'Fa#5', 'Silence'"),
   is_rest: z.boolean().optional().describe("Vrai si c'est un silence/pause"),
+}).refine((data) => {
+  // If it's a rest, frequency should be 0
+  if (data.is_rest) {
+    return data.frequency === 0;
+  }
+  // If it's not a rest, frequency should be between 80-4000
+  return data.frequency >= 80 && data.frequency <= 4000;
+}, {
+  message: "Pour les silences: frequency=0 et is_rest=true. Pour les notes: frequency entre 80-4000Hz",
+  path: ["frequency"]
 });
 
 // Define the schema for the complete arrangement
@@ -55,14 +65,19 @@ export async function POST(request: NextRequest) {
 
 À partir de la demande musicale de l'utilisateur, générez une séquence de notes avec des fréquences et durées exactes.
 
-Directives IMPORTANTES:
-- OBLIGATOIRE: Utilisez UNIQUEMENT des fréquences entre 80Hz et 4000Hz (plage musicale audible)
+RÈGLES ABSOLUES pour le format JSON:
+- TOUS les objets notes DOIVENT avoir les champs "frequency" et "duration"
+- Pour les NOTES MUSICALES: frequency entre 80-4000Hz, is_rest: false ou omis
+- Pour les SILENCES: frequency: 0, is_rest: true, note_name: "Silence"
+- Ne JAMAIS omettre le champ frequency - utilisez 0 pour les silences
+- Tous les nombres doivent être valides (pas null, undefined, ou manquants)
+
+Directives musicales:
 - Utilisez les fréquences musicales occidentales standard (La4 = 440Hz)
-- Gardez les arrangements entre 5-30 notes pour la jouabilité
-- Incluez des silences (is_rest: true) pour le phrasé musical
+- Gardez les arrangements entre 8-25 notes pour la jouabilité
+- Incluez 1-2 silences pour le phrasé musical si nécessaire
 - Utilisez des durées réalistes (0.1-2.0 secondes typiquement)
 - Respectez le style, tempo et tonalité demandés
-- Pour les riffs/mélodies, utilisez répétition et variation
 
 Références de fréquences VALIDES (80-4000Hz):
 - Do3: 130.81 Hz, Do4: 261.63 Hz, Do5: 523.25 Hz
@@ -73,10 +88,10 @@ Références de fréquences VALIDES (80-4000Hz):
 - La3: 220.00 Hz, La4: 440.00 Hz, La5: 880.00 Hz
 - Si3: 246.94 Hz, Si4: 493.88 Hz, Si5: 987.77 Hz
 
-ATTENTION: Ne jamais utiliser de fréquences en dessous de 80Hz ou au-dessus de 4000Hz.
+EXEMPLE de note musicale: {"frequency": 440, "duration": 0.5, "note_name": "La4"}
+EXEMPLE de silence: {"frequency": 0, "duration": 0.25, "note_name": "Silence", "is_rest": true}
 
-Fournissez toujours note_name quand possible (ex: "Do4", "Fa#5").
-
+Fournissez toujours note_name pour chaque élément.
 Répondez en français pour les titres et descriptions.`;
 
     const completion = await openai.chat.completions.create({
@@ -121,9 +136,9 @@ Répondez en français pour les titres et descriptions.`;
                   properties: {
                     frequency: {
                       type: "number",
-                      minimum: 80,
+                      minimum: 0,
                       maximum: 4000,
-                      description: "Fréquence en Hz (80-4000) - plage musicale standard"
+                      description: "Fréquence en Hz - OBLIGATOIRE: 0 pour silences, 80-4000 pour notes musicales"
                     },
                     duration: {
                       type: "number",
@@ -133,7 +148,7 @@ Répondez en français pour les titres et descriptions.`;
                     },
                     note_name: {
                       type: "string",
-                      description: "Nom de la note optionnel comme 'Do4', 'Fa#5', etc."
+                      description: "Nom de la note optionnel comme 'Do4', 'Fa#5', 'Silence'"
                     },
                     is_rest: {
                       type: "boolean",
