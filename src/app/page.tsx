@@ -1,3 +1,4 @@
+// src/app/page.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -13,6 +14,7 @@ export default function Home() {
   const [error, setError] = useState<string>('');
 
   const examplePrompts = [
+  // Exemples de prompts
     "Mélodie exacte de Seven Nation Army",
     "Joyeux Anniversaire mélodie complète",
     "Canon de Pachelbel ouverture",
@@ -24,6 +26,7 @@ export default function Home() {
   ];
 
   const generateArrangement = async () => {
+  // Générer un arrangement
     if (!prompt.trim()) return;
 
     setIsLoading(true);
@@ -63,16 +66,20 @@ export default function Home() {
   };
 
   const useExamplePrompt = (example: string) => {
+  // Utiliser un exemple de prompt
     setPrompt(example);
   };
 
   return (
+  // Rendu principal
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
       {/* Subtle dark background elements */}
+      // Sombres éléments de fond
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-4 -left-4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 -right-8 w-80 h-80 bg-gradient-to-l from-purple-500/10 to-pink-500/10 rounded-full blur-3xl"></div>
       </div>
+      // Conteneur principal
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
         <motion.div
@@ -80,6 +87,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
+          // En-tête
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-white">
               <Music className="w-8 h-8" />
@@ -88,6 +96,7 @@ export default function Home() {
               Generateur de notes musicales
             </h1>
           </div>
+          // Description
           <p className="text-gray-400 max-w-lg mx-auto">
             Créez des arrangements musicaux avec l'intelligence artificielle
           </p>
@@ -102,6 +111,7 @@ export default function Home() {
         >
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6">
             <form onSubmit={handleSubmit}>
+              // Formulaire
               <div className="relative">
                 <textarea
                   id="prompt"
@@ -112,6 +122,7 @@ export default function Home() {
                   rows={2}
                   disabled={isLoading}
                 />
+                // Bouton de génération
                 <button
                   type="submit"
                   disabled={!prompt.trim() || isLoading}
@@ -133,6 +144,7 @@ export default function Home() {
 
               {/* Example Prompts */}
               <div className="mt-4">
+                // Exemples de prompts
                 <div className="flex flex-wrap gap-2 justify-center">
                   {examplePrompts.slice(0, 4).map((example, index) => (
                     <button
@@ -150,6 +162,7 @@ export default function Home() {
             </form>
 
             {/* Error Display */}
+            // Affichage des erreurs
             {error && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -167,6 +180,7 @@ export default function Home() {
         </motion.div>
 
         {/* Music Player */}
+        // Lecteur musical
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -174,11 +188,13 @@ export default function Home() {
           className={`mx-auto px-4 ${
             arrangement && arrangement.notes.length > 15 
               ? 'max-w-full' 
+              // Largeur maximale pour les longues mélodies
               : arrangement && arrangement.notes.length > 8 
                 ? 'max-w-6xl' 
                 : 'max-w-4xl'
           }`}
         >
+          // Lecteur musical
           <MusicPlayer arrangement={arrangement} isLoading={isLoading} />
         </motion.div>
       </div>

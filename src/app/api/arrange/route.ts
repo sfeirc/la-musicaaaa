@@ -2,30 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { z } from 'zod';
 
-// Initialize OpenAI client
+// Initialiser OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Define the schema for a single note
+// Définir le schéma pour une seule note
 const NoteSchema = z.object({
   frequency: z.number().min(0).max(4000).describe("Fréquence en Hz (0 pour silence, 80-4000 pour notes)"),
   duration: z.number().min(0.01).max(10).describe("Durée en secondes (0.01-10)"),
   note_name: z.string().optional().describe("Nom de la note optionnel comme 'Do4', 'Fa#5', 'Silence'"),
   is_rest: z.boolean().optional().describe("Vrai si c'est un silence/pause"),
 }).refine((data) => {
-  // If it's a rest, frequency should be 0
+  // Si c'est un silence, frequency doit être 0
   if (data.is_rest) {
     return data.frequency === 0;
   }
-  // If it's not a rest, frequency should be between 80-4000
+  // Si ce n'est pas un silence, frequency doit être entre 80-4000
   return data.frequency >= 80 && data.frequency <= 4000;
 }, {
   message: "Pour les silences: frequency=0 et is_rest=true. Pour les notes: frequency entre 80-4000Hz",
   path: ["frequency"]
 });
 
-// Define the schema for the complete arrangement
+// Définir le schéma pour l'arrangement complet
 const ArrangementSchema = z.object({
   title: z.string().describe("Titre ou description de l'arrangement musical"),
   tempo_bpm: z.number().min(60).max(200).describe("Tempo en battements par minute"),
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the system prompt for music generation
+    // Créer le prompt système pour la génération de musique
     const systemPrompt = `Vous êtes un musicologue IA expert qui reproduit avec une PRÉCISION ABSOLUE les mélodies de chansons connues.
 
 MISSION CRITIQUE: Générer les notes EXACTEMENT IDENTIQUES aux originaux - chaque fréquence doit être parfaite.
@@ -241,7 +241,7 @@ Répondez en français pour les titres et descriptions.`;
       throw new Error('Échec de la génération de l\'arrangement musical');
     }
 
-    // Parse the JSON response
+    // Parser la réponse JSON
     let arrangement;
     try {
       arrangement = JSON.parse(messageContent);
@@ -249,7 +249,7 @@ Répondez en français pour les titres et descriptions.`;
       throw new Error('Format de réponse JSON invalide');
     }
 
-    // Validate the generated arrangement
+    // Valider l'arrangement généré
     const validatedArrangement = ArrangementSchema.parse(arrangement);
 
     return NextResponse.json({
@@ -272,7 +272,7 @@ Répondez en français pour les titres et descriptions.`;
       );
     }
 
-    // Handle OpenAI API errors specifically
+    // Gérer les erreurs spécifiques de l'API OpenAI
     if (error && typeof error === 'object' && 'status' in error) {
       const apiError = error as any;
       if (apiError.status === 401) {
@@ -306,7 +306,7 @@ Répondez en français pour les titres et descriptions.`;
   }
 }
 
-// Handle OPTIONS for CORS
+// Gérer OPTIONS pour CORS
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
