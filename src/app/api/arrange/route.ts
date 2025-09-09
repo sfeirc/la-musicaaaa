@@ -9,7 +9,7 @@ const openai = new OpenAI({
 
 // Define the schema for a single note
 const NoteSchema = z.object({
-  frequency: z.number().min(20).max(20000).describe("Fréquence en Hz (20-20000)"),
+  frequency: z.number().min(80).max(4000).describe("Fréquence en Hz (80-4000) - plage musicale standard"),
   duration: z.number().min(0.01).max(10).describe("Durée en secondes (0.01-10)"),
   note_name: z.string().optional().describe("Nom de la note optionnel comme 'Do4', 'Fa#5', etc."),
   is_rest: z.boolean().optional().describe("Vrai si c'est un silence/pause"),
@@ -43,24 +43,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (process.env.OPENAI_API_KEY.includes('your-') || process.env.OPENAI_API_KEY.length < 20) {
+      return NextResponse.json(
+        { error: 'Veuillez remplacer la clé API OpenAI par une vraie clé dans le fichier .env.local' },
+        { status: 500 }
+      );
+    }
+
     // Create the system prompt for music generation
     const systemPrompt = `Vous êtes un compositeur IA qui crée des arrangements musicaux précis.
 
 À partir de la demande musicale de l'utilisateur, générez une séquence de notes avec des fréquences et durées exactes.
 
-Directives:
+Directives IMPORTANTES:
+- OBLIGATOIRE: Utilisez UNIQUEMENT des fréquences entre 80Hz et 4000Hz (plage musicale audible)
 - Utilisez les fréquences musicales occidentales standard (La4 = 440Hz)
-- Gardez les arrangements entre 5-50 notes pour la jouabilité
+- Gardez les arrangements entre 5-30 notes pour la jouabilité
 - Incluez des silences (is_rest: true) pour le phrasé musical
 - Utilisez des durées réalistes (0.1-2.0 secondes typiquement)
 - Respectez le style, tempo et tonalité demandés
 - Pour les riffs/mélodies, utilisez répétition et variation
-- Pour les progressions d'accords, utilisez des intervalles harmoniques appropriés
 
-Références de fréquences courantes:
-- Do4: 261.63 Hz, Ré4: 293.66 Hz, Mi4: 329.63 Hz, Fa4: 349.23 Hz
-- Sol4: 392.00 Hz, La4: 440.00 Hz, Si4: 493.88 Hz
-- Do5: 523.25 Hz, etc.
+Références de fréquences VALIDES (80-4000Hz):
+- Do3: 130.81 Hz, Do4: 261.63 Hz, Do5: 523.25 Hz
+- Ré3: 146.83 Hz, Ré4: 293.66 Hz, Ré5: 587.33 Hz  
+- Mi3: 164.81 Hz, Mi4: 329.63 Hz, Mi5: 659.25 Hz
+- Fa3: 174.61 Hz, Fa4: 349.23 Hz, Fa5: 698.46 Hz
+- Sol3: 196.00 Hz, Sol4: 392.00 Hz, Sol5: 783.99 Hz
+- La3: 220.00 Hz, La4: 440.00 Hz, La5: 880.00 Hz
+- Si3: 246.94 Hz, Si4: 493.88 Hz, Si5: 987.77 Hz
+
+ATTENTION: Ne jamais utiliser de fréquences en dessous de 80Hz ou au-dessus de 4000Hz.
 
 Fournissez toujours note_name quand possible (ex: "Do4", "Fa#5").
 
@@ -108,9 +121,9 @@ Répondez en français pour les titres et descriptions.`;
                   properties: {
                     frequency: {
                       type: "number",
-                      minimum: 20,
-                      maximum: 20000,
-                      description: "Fréquence en Hz (20-20000)"
+                      minimum: 80,
+                      maximum: 4000,
+                      description: "Fréquence en Hz (80-4000) - plage musicale standard"
                     },
                     duration: {
                       type: "number",
@@ -175,11 +188,36 @@ Répondez en français pour les titres et descriptions.`;
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { 
-          error: 'Format d\'arrangement invalide',
-          details: error.errors 
+          error: 'Format d\'arrangement invalide - GPT-4o a généré des données hors limites',
+          details: error.errors,
+          help: 'Essayez avec une description plus simple ou différente'
         },
         { status: 422 }
       );
+    }
+
+    // Handle OpenAI API errors specifically
+    if (error && typeof error === 'object' && 'status' in error) {
+      const apiError = error as any;
+      if (apiError.status === 401) {
+        return NextResponse.json(
+          { 
+            error: 'Clé API OpenAI invalide',
+            message: 'Veuillez vérifier votre clé API OpenAI dans le fichier .env.local',
+            help: 'Obtenez une nouvelle clé sur https://platform.openai.com/api-keys'
+          },
+          { status: 401 }
+        );
+      }
+      if (apiError.status === 429) {
+        return NextResponse.json(
+          { 
+            error: 'Limite de taux OpenAI dépassée',
+            message: 'Trop de requêtes. Veuillez attendre quelques secondes.'
+          },
+          { status: 429 }
+        );
+      }
     }
 
     return NextResponse.json(
