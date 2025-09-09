@@ -66,7 +66,7 @@ Fournissez toujours note_name quand possible (ex: "Do4", "Fa#5").
 
 Répondez en français pour les titres et descriptions.`;
 
-    const completion = await openai.beta.chat.completions.parse({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o-2024-08-06",
       messages: [
         {
@@ -82,17 +82,82 @@ Répondez en français pour les titres et descriptions.`;
         type: "json_schema",
         json_schema: {
           name: "musical_arrangement",
-          schema: ArrangementSchema,
+          schema: {
+            type: "object",
+            properties: {
+              title: {
+                type: "string",
+                description: "Titre ou description de l'arrangement musical"
+              },
+              tempo_bpm: {
+                type: "number",
+                minimum: 60,
+                maximum: 200,
+                description: "Tempo en battements par minute"
+              },
+              key_signature: {
+                type: "string",
+                description: "Tonalité comme 'Do majeur', 'La mineur', etc."
+              },
+              notes: {
+                type: "array",
+                minItems: 1,
+                maxItems: 100,
+                items: {
+                  type: "object",
+                  properties: {
+                    frequency: {
+                      type: "number",
+                      minimum: 20,
+                      maximum: 20000,
+                      description: "Fréquence en Hz (20-20000)"
+                    },
+                    duration: {
+                      type: "number",
+                      minimum: 0.01,
+                      maximum: 10,
+                      description: "Durée en secondes (0.01-10)"
+                    },
+                    note_name: {
+                      type: "string",
+                      description: "Nom de la note optionnel comme 'Do4', 'Fa#5', etc."
+                    },
+                    is_rest: {
+                      type: "boolean",
+                      description: "Vrai si c'est un silence/pause"
+                    }
+                  },
+                  required: ["frequency", "duration"],
+                  additionalProperties: false
+                },
+                description: "Tableau de notes en séquence"
+              },
+              total_duration: {
+                type: "number",
+                description: "Durée totale de l'arrangement en secondes"
+              }
+            },
+            required: ["title", "tempo_bpm", "key_signature", "notes", "total_duration"],
+            additionalProperties: false
+          }
         },
       },
       temperature: 0.7,
       max_tokens: 2000,
     });
 
-    const arrangement = completion.choices[0]?.message?.parsed;
+    const messageContent = completion.choices[0]?.message?.content;
 
-    if (!arrangement) {
+    if (!messageContent) {
       throw new Error('Échec de la génération de l\'arrangement musical');
+    }
+
+    // Parse the JSON response
+    let arrangement;
+    try {
+      arrangement = JSON.parse(messageContent);
+    } catch (error) {
+      throw new Error('Format de réponse JSON invalide');
     }
 
     // Validate the generated arrangement
