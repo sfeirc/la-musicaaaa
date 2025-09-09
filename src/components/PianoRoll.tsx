@@ -61,7 +61,24 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
 
   const noteRange = maxMidi - minMidi + 1;
   const rollHeight = Math.max(300, noteRange * 20);
-  const rollWidth = Math.max(800, totalDuration * 100);
+  
+  // Fully adaptive width based on actual number of notes
+  const notesCount = visualNotes.length;
+  let noteWidth, minWidth;
+  
+  if (notesCount <= 8) {
+    noteWidth = 80; // Wide notes for short sequences
+    minWidth = 800;
+  } else if (notesCount <= 15) {
+    noteWidth = 60; // Medium notes for medium sequences  
+    minWidth = 1000;
+  } else {
+    noteWidth = 45; // Compact notes for long sequences
+    minWidth = 1200;
+  }
+  
+  const baseWidth = Math.max(minWidth, notesCount * noteWidth);
+  const rollWidth = Math.max(baseWidth, totalDuration * (noteWidth * 2));
 
   // Get note name from MIDI number
   const getMidiNoteName = (midiNote: number): string => {
@@ -71,6 +88,11 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
     return `${note}${octave}`;
   };
 
+  // Get frequency from MIDI note
+  const getFrequencyFromMidi = (midiNote: number): number => {
+    return 440 * Math.pow(2, (midiNote - 69) / 12);
+  };
+
   // Check if a note is a black key
   const isBlackKey = (midiNote: number): boolean => {
     const semitone = midiNote % 12;
@@ -78,23 +100,30 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
+    <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">🎹 Rouleau de Piano</h3>
+        <h3 className="text-lg font-bold text-white flex items-center gap-2">🎹 Rouleau de Piano</h3>
         {playbackState.currentNoteIndex >= 0 && (
-          <div className="text-sm font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
-            🎵 En cours: {arrangement.notes[playbackState.currentNoteIndex]?.note_name || 
-              frequencyToNoteName(arrangement.notes[playbackState.currentNoteIndex]?.frequency || 440)}
+          <div className="text-sm font-medium text-blue-300 bg-blue-500/20 px-3 py-1.5 rounded-full flex items-center gap-2">
+            <span className="animate-pulse">🎵</span>
+            <span>En cours :</span>
+            <span className="font-bold">
+              {arrangement.notes[playbackState.currentNoteIndex]?.note_name || 
+                frequencyToNoteName(arrangement.notes[playbackState.currentNoteIndex]?.frequency || 440)}
+            </span>
+            <span className="text-xs opacity-75">
+              {arrangement.notes[playbackState.currentNoteIndex]?.frequency?.toFixed(1)}Hz
+            </span>
           </div>
         )}
       </div>
 
-      <div className="relative overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-inner">
+      <div className="relative overflow-x-auto overflow-y-hidden border border-gray-600/50 rounded-xl bg-gray-900/50">
         <svg
-          width={rollWidth + 100}
+          width={rollWidth + 120}
           height={rollHeight + 40}
           className="block"
-          style={{ minWidth: '800px' }}
+          style={{ minWidth: `${minWidth}px` }}
         >
           {/* Background grid */}
           <defs>
@@ -107,7 +136,7 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
               <path
                 d="M 50 0 L 0 0 0 20"
                 fill="none"
-                stroke="#e5e7eb"
+                stroke="#374151"
                 strokeWidth="0.5"
               />
             </pattern>
@@ -128,19 +157,30 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
                     y={y}
                     width={80}
                     height={20}
-                    fill={isBlack ? '#374151' : '#ffffff'}
-                    stroke="#d1d5db"
+                    fill={isBlack ? '#1f2937' : '#374151'}
+                    stroke="#4b5563"
                     strokeWidth={0.5}
                   />
                   <text
                     x={75}
-                    y={y + 14}
+                    y={y + 10}
                     textAnchor="end"
-                    fontSize="10"
-                    fill={isBlack ? '#ffffff' : '#374151'}
+                    fontSize="9"
+                    fill={isBlack ? '#d1d5db' : '#f3f4f6'}
                     fontFamily="monospace"
+                    fontWeight="bold"
                   >
                     {getMidiNoteName(midiNote)}
+                  </text>
+                  <text
+                    x={75}
+                    y={y + 18}
+                    textAnchor="end"
+                    fontSize="7"
+                    fill={isBlack ? '#9ca3af' : '#d1d5db'}
+                    fontFamily="monospace"
+                  >
+                    {getFrequencyFromMidi(midiNote).toFixed(1)}Hz
                   </text>
                 </g>
               );
@@ -149,28 +189,31 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
 
           {/* Time markers */}
           <g>
-            {Array.from({ length: Math.ceil(totalDuration) + 1 }, (_, i) => (
-              <g key={i}>
-                <line
-                  x1={100 + i * 100}
-                  y1={0}
-                  x2={100 + i * 100}
-                  y2={rollHeight + 20}
-                  stroke="#d1d5db"
-                  strokeWidth={0.5}
-                  strokeDasharray="2,2"
-                />
-                <text
-                  x={100 + i * 100}
-                  y={15}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#6b7280"
-                >
-                  {i}s
-                </text>
-              </g>
-            ))}
+            {Array.from({ length: Math.ceil(totalDuration) + 1 }, (_, i) => {
+              const xPos = 100 + (i / totalDuration) * (rollWidth - 100);
+              return (
+                <g key={i}>
+                  <line
+                    x1={xPos}
+                    y1={0}
+                    x2={xPos}
+                    y2={rollHeight + 20}
+                    stroke="#4b5563"
+                    strokeWidth={0.5}
+                    strokeDasharray="2,2"
+                  />
+                  <text
+                    x={xPos}
+                    y={15}
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="#9ca3af"
+                  >
+                    {i}s
+                  </text>
+                </g>
+              );
+            })}
           </g>
 
           {/* Notes */}
@@ -200,16 +243,30 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
                   }}
                   transition={{ duration: 0.2 }}
                 />
-                {width > 40 && (
-                  <text
-                    x={x + 4}
-                    y={y + 13}
-                    fontSize="10"
-                    fill="white"
-                    fontFamily="monospace"
-                  >
-                    {note.note_name}
-                  </text>
+                {width > noteWidth * 0.4 && (
+                  <>
+                    <text
+                      x={x + Math.max(2, width * 0.05)}
+                      y={y + 10}
+                      fontSize={Math.max(7, Math.min(10, width * 0.15))}
+                      fill="white"
+                      fontFamily="monospace"
+                      fontWeight="bold"
+                    >
+                      {note.note_name}
+                    </text>
+                    {width > noteWidth * 0.7 && (
+                      <text
+                        x={x + Math.max(2, width * 0.05)}
+                        y={y + 16}
+                        fontSize={Math.max(6, Math.min(8, width * 0.12))}
+                        fill="rgba(255,255,255,0.8)"
+                        fontFamily="monospace"
+                      >
+                        {note.frequency.toFixed(0)}Hz
+                      </text>
+                    )}
+                  </>
                 )}
               </motion.g>
             );
@@ -232,21 +289,15 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
         </svg>
       </div>
 
-      {/* Legend */}
-      <div className="mt-6 flex items-center justify-center gap-6 text-sm font-medium text-gray-700 bg-gray-50 rounded-xl p-4">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-500 rounded-full shadow-sm"></div>
-          <span>🎵 Notes</span>
+      {/* Simplified Stats */}
+      {arrangement && (
+        <div className="mt-4 flex justify-center gap-6 text-sm text-gray-400">
+          <span>{visualNotes.length} notes</span>
+          <span>{getMidiNoteName(minMidi)} - {getMidiNoteName(maxMidi)}</span>
+          <span>{getFrequencyFromMidi(minMidi).toFixed(0)} - {getFrequencyFromMidi(maxMidi).toFixed(0)}Hz</span>
+          <span>{totalDuration.toFixed(1)}s</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm animate-pulse"></div>
-          <span>🔴 En cours de lecture</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-gray-600 rounded-full shadow-sm"></div>
-          <span>⬛ Touches noires</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

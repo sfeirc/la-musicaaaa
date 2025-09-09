@@ -22,7 +22,8 @@ export interface PlaybackState {
 
 export interface ArrangeResponse {
   success: boolean;
-  arrangement: Arrangement;
+  arrangement?: Arrangement;
+  error?: string;
   usage?: {
     prompt_tokens: number;
     completion_tokens: number;

@@ -61,34 +61,95 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the system prompt for music generation
-    const systemPrompt = `Vous êtes un compositeur IA qui crée des arrangements musicaux précis.
+    const systemPrompt = `Vous êtes un musicologue IA expert qui reproduit avec une PRÉCISION ABSOLUE les mélodies de chansons connues.
 
-À partir de la demande musicale de l'utilisateur, générez une séquence de notes avec des fréquences et durées exactes.
+MISSION CRITIQUE: Générer les notes EXACTEMENT IDENTIQUES aux originaux - chaque fréquence doit être parfaite.
 
-RÈGLES ABSOLUES pour le format JSON:
+ANALYSE MÉLODIQUE OBLIGATOIRE:
+1. Identifiez la TONALITÉ EXACTE de la chanson originale
+2. Déterminez les INTERVALLES PRÉCIS entre chaque note
+3. Respectez le RYTHME et les DURÉES originales
+4. Analysez la STRUCTURE mélodique (gammes, arpèges, sauts)
+5. Vérifiez que chaque note correspond à la partition officielle
+
+RÈGLES DE PRÉCISION MUSICALE:
+- Utilisez UNIQUEMENT les fréquences exactes des notes tempérées
+- Respectez les DEMI-TONS et TONS de la gamme chromatique
+- Chaque intervalle doit être mathématiquement correct
+- Vérifiez la justesse de chaque note par rapport à la précédente
+- Aucune approximation tolérée - précision au centième de Hz
+- INTERDICTION ABSOLUE: Évitez les répétitions de notes consécutives identiques
+- VARIÉTÉ MÉLODIQUE: Chaque note doit être différente de la précédente (sauf si l'original l'exige)
+
+VÉRIFICATION DE FIDÉLITÉ:
+- Chaque note générée doit pouvoir être vérifiée sur une partition
+- Les intervalles doivent correspondre exactement à l'original
+- La mélodie doit être instantanément reconnaissable dès les 3 premières notes
+- Testez mentalement: "Est-ce que cela sonne exactement comme l'original?"
+
+RÈGLES TECHNIQUES pour le format JSON:
 - TOUS les objets notes DOIVENT avoir les champs "frequency" et "duration"
 - Pour les NOTES MUSICALES: frequency entre 80-4000Hz, is_rest: false ou omis
 - Pour les SILENCES: frequency: 0, is_rest: true, note_name: "Silence"
 - Ne JAMAIS omettre le champ frequency - utilisez 0 pour les silences
 - Tous les nombres doivent être valides (pas null, undefined, ou manquants)
 
-Directives musicales:
-- Utilisez les fréquences musicales occidentales standard (La4 = 440Hz)
-- Gardez les arrangements entre 8-25 notes pour la jouabilité
-- Incluez 1-2 silences pour le phrasé musical si nécessaire
-- Utilisez des durées réalistes (0.1-2.0 secondes typiquement)
-- Respectez le style, tempo et tonalité demandés
+Directives musicales pour la fidélité PARFAITE:
+- Reproduisez la PREMIÈRE SÉQUENCE MÉLODIQUE complète de la chanson (généralement 8-25 notes)
+- Adaptez le nombre de notes à la structure naturelle de la mélodie:
+  * Phrases courtes: 8-12 notes pour des mélodies simples
+  * Phrases moyennes: 12-18 notes pour des mélodies standard  
+  * Phrases longues: 18-25 notes pour des mélodies complexes
+- Utilisez les fréquences musicales tempérées EXACTES (La4 = 440.00Hz)
+- Durées musicales standards: 0.5s (noire), 0.25s (croche), 1.0s (blanche)
+- Respectez les silences originaux - ne pas ajouter d'espacement artificiel
+- Intervalles mélodiques: calculez précisément chaque saut (tierce, quinte, octave, etc.)
+- MOUVEMENT MÉLODIQUE: Privilégiez la progression par degrés ou sauts intéressants
+- ÉVITEZ LES RÉPÉTITIONS: Sauf si la chanson originale contient réellement des notes répétées
+- PRIORITÉ ABSOLUE: FIDÉLITÉ TOTALE à l'original - zéro tolérance pour les erreurs
 
-Références de fréquences VALIDES (80-4000Hz):
-- Do3: 130.81 Hz, Do4: 261.63 Hz, Do5: 523.25 Hz
-- Ré3: 146.83 Hz, Ré4: 293.66 Hz, Ré5: 587.33 Hz  
-- Mi3: 164.81 Hz, Mi4: 329.63 Hz, Mi5: 659.25 Hz
-- Fa3: 174.61 Hz, Fa4: 349.23 Hz, Fa5: 698.46 Hz
-- Sol3: 196.00 Hz, Sol4: 392.00 Hz, Sol5: 783.99 Hz
-- La3: 220.00 Hz, La4: 440.00 Hz, La5: 880.00 Hz
-- Si3: 246.94 Hz, Si4: 493.88 Hz, Si5: 987.77 Hz
+TABLE DE FRÉQUENCES EXACTES (Tempérament égal, La4 = 440.00Hz):
 
-EXEMPLE de note musicale: {"frequency": 440, "duration": 0.5, "note_name": "La4"}
+OCTAVE 3:
+- Do3: 130.81 Hz, Do#3: 138.59 Hz, Ré3: 146.83 Hz, Ré#3: 155.56 Hz
+- Mi3: 164.81 Hz, Fa3: 174.61 Hz, Fa#3: 185.00 Hz, Sol3: 196.00 Hz
+- Sol#3: 207.65 Hz, La3: 220.00 Hz, La#3: 233.08 Hz, Si3: 246.94 Hz
+
+OCTAVE 4 (référence):
+- Do4: 261.63 Hz, Do#4: 277.18 Hz, Ré4: 293.66 Hz, Ré#4: 311.13 Hz
+- Mi4: 329.63 Hz, Fa4: 349.23 Hz, Fa#4: 369.99 Hz, Sol4: 392.00 Hz
+- Sol#4: 415.30 Hz, La4: 440.00 Hz, La#4: 466.16 Hz, Si4: 493.88 Hz
+
+OCTAVE 5:
+- Do5: 523.25 Hz, Do#5: 554.37 Hz, Ré5: 587.33 Hz, Ré#5: 622.25 Hz
+- Mi5: 659.25 Hz, Fa5: 698.46 Hz, Fa#5: 739.99 Hz, Sol5: 783.99 Hz
+- Sol#5: 830.61 Hz, La5: 880.00 Hz, La#5: 932.33 Hz, Si5: 987.77 Hz
+
+FORMULE DE CALCUL: f = 440 × 2^((n-69)/12) où n = numéro MIDI
+VÉRIFICATION OBLIGATOIRE: Chaque fréquence doit correspondre exactement à cette table
+
+EXEMPLES DE MÉLODIES EXACTES AVEC VARIÉTÉ:
+
+Seven Nation Army (The White Stripes) - Mi mineur:
+- Mi3 (164.81 Hz) - Sol3 (196.00 Hz) - Mi3 (164.81 Hz) - Ré3 (146.83 Hz) - Do3 (130.81 Hz) - Si2 (123.47 Hz) - La2 (110.00 Hz)
+(Note: Évitez la répétition Mi-Mi du début, créez du mouvement mélodique)
+
+Joyeux Anniversaire - Do majeur (version sans répétitions):
+- Do4 (261.63 Hz) - Ré4 (293.66 Hz) - Mi4 (329.63 Hz) - Do4 (261.63 Hz) - Fa4 (349.23 Hz) - Mi4 (329.63 Hz) - Ré4 (293.66 Hz)
+
+Hymne à la joie (Beethoven) - Ré majeur (progression fluide):
+- Mi4 (329.63 Hz) - Fa#4 (369.99 Hz) - Sol4 (392.00 Hz) - La4 (440.00 Hz) - Sol4 (392.00 Hz) - Fa#4 (369.99 Hz) - Mi4 (329.63 Hz) - Ré4 (293.66 Hz)
+
+PRINCIPE: Créez des MOUVEMENTS MÉLODIQUES fluides sans répétitions monotones
+
+VÉRIFICATION FINALE:
+- Comparez votre mélodie avec ces exemples de précision
+- Chaque fréquence doit être vérifiable dans la table
+- La mélodie doit être immédiatement reconnaissable
+- CONTRÔLE ANTI-RÉPÉTITION: Vérifiez qu'aucune note identique ne se suit (frequency identique)
+- FLUIDITÉ MÉLODIQUE: Assurez-vous que chaque note apporte un mouvement musical intéressant
+
+EXEMPLE de note musicale: {"frequency": 440.00, "duration": 0.5, "note_name": "La4"}
 EXEMPLE de silence: {"frequency": 0, "duration": 0.25, "note_name": "Silence", "is_rest": true}
 
 Fournissez toujours note_name pour chaque élément.
@@ -170,7 +231,7 @@ Répondez en français pour les titres et descriptions.`;
           }
         },
       },
-      temperature: 0.7,
+      temperature: 0.1,  // Very low temperature for maximum precision and consistency
       max_tokens: 2000,
     });
 

@@ -6,6 +6,8 @@ export class AudioEngine {
   private currentOscillator: OscillatorNode | null = null;
   private currentGain: GainNode | null = null;
   private settings: AudioSettings;
+  private scheduledNotes: Array<{oscillator: OscillatorNode, gainNode: GainNode}> = [];
+  private isPlaying: boolean = false;
 
   constructor(settings: AudioSettings) {
     this.settings = settings;
@@ -25,13 +27,14 @@ export class AudioEngine {
     }
   }
 
-  async playFrequency(frequency: number, duration: number): Promise<void> {
+  async playFrequency(frequency: number, duration: number, startTime?: number): Promise<void> {
+    // Initialize audio context if not already done
     if (!this.audioContext || !this.masterGain) {
       await this.initialize();
     }
 
     if (!this.audioContext || !this.masterGain) {
-      throw new Error('Audio context not available');
+      throw new Error('Failed to initialize audio context');
     }
 
     // Stop any currently playing note
@@ -39,8 +42,6 @@ export class AudioEngine {
 
     // Handle silence (frequency 0)
     if (frequency === 0) {
-      // Just wait for the duration without playing anything
-      await new Promise(resolve => setTimeout(resolve, duration * 1000));
       return;
     }
 
@@ -52,39 +53,25 @@ export class AudioEngine {
     this.currentOscillator.connect(this.currentGain);
     this.currentGain.connect(this.masterGain);
 
-    // Configure oscillator
+    // Configure oscillator with precise frequency
     this.currentOscillator.type = this.settings.waveform;
-    this.currentOscillator.frequency.value = frequency;
+    this.currentOscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
 
-    // Configure ADSR envelope
-    const now = this.audioContext.currentTime;
-    const attackTime = this.settings.attack;
-    const decayTime = this.settings.decay;
-    const sustainLevel = this.settings.sustain;
-    const releaseTime = this.settings.release;
+    // Use audio context time for precise timing
+    const now = startTime || this.audioContext.currentTime;
+    const noteDuration = Math.max(0.05, duration - 0.02); // Minimum 50ms duration, with 20ms gap
+    const fadeIn = Math.min(0.01, noteDuration * 0.1); // Quick fade in
+    const fadeOut = Math.min(0.02, noteDuration * 0.2); // Quick fade out
 
-    // Start with gain at 0
+    // Simple but clear envelope
     this.currentGain.gain.setValueAtTime(0, now);
+    this.currentGain.gain.linearRampToValueAtTime(0.8, now + fadeIn); // Quick attack
+    this.currentGain.gain.setValueAtTime(0.8, now + noteDuration - fadeOut); // Sustain
+    this.currentGain.gain.linearRampToValueAtTime(0, now + noteDuration); // Quick release
 
-    // Attack phase
-    this.currentGain.gain.linearRampToValueAtTime(1, now + attackTime);
-
-    // Decay phase
-    this.currentGain.gain.linearRampToValueAtTime(
-      sustainLevel,
-      now + attackTime + decayTime
-    );
-
-    // Sustain phase (hold at sustain level until release)
-    const releaseStartTime = now + duration - releaseTime;
-    this.currentGain.gain.setValueAtTime(sustainLevel, releaseStartTime);
-
-    // Release phase
-    this.currentGain.gain.linearRampToValueAtTime(0, now + duration);
-
-    // Start and schedule stop
+    // Start and schedule stop with precise timing
     this.currentOscillator.start(now);
-    this.currentOscillator.stop(now + duration);
+    this.currentOscillator.stop(now + noteDuration);
 
     // Clean up when finished
     this.currentOscillator.onended = () => {
@@ -105,6 +92,28 @@ export class AudioEngine {
     }
   }
 
+  // Method to stop all scheduled notes (for pause functionality)
+  private stopAllNotes(): void {
+    this.isPlaying = false;
+    
+    // Stop all scheduled notes
+    this.scheduledNotes.forEach(({ oscillator, gainNode }) => {
+      try {
+        oscillator.stop();
+        oscillator.disconnect();
+        gainNode.disconnect();
+      } catch (error) {
+        // Oscillator might already be stopped
+      }
+    });
+    
+    // Clear the array
+    this.scheduledNotes = [];
+    
+    // Also stop current single note if playing
+    this.stopCurrentNote();
+  }
+
   updateSettings(newSettings: Partial<AudioSettings>): void {
     this.settings = { ...this.settings, ...newSettings };
     
@@ -119,8 +128,92 @@ export class AudioEngine {
     }
   }
 
+  // New pausable method for playing note sequences
+  async playNoteSequence(notes: Array<{frequency: number, duration: number, is_rest?: boolean}>): Promise<void> {
+    // Initialize audio context if not already done
+    if (!this.audioContext || !this.masterGain) {
+      await this.initialize();
+    }
+
+    if (!this.audioContext || !this.masterGain) {
+      throw new Error('Failed to initialize audio context');
+    }
+
+    this.stopAllNotes();
+    this.isPlaying = true;
+    
+    let currentTime = this.audioContext.currentTime;
+    
+    notes.forEach((note) => {
+      if (!note.is_rest && note.frequency > 0) {
+        this.scheduleNote(note.frequency, note.duration, currentTime);
+      }
+      currentTime += note.duration;
+    });
+  }
+
+  // Method to pause/stop all scheduled notes
+  pausePlayback(): void {
+    this.isPlaying = false;
+    this.stopAllNotes();
+  }
+
+  // Method to check if currently playing
+  isCurrentlyPlaying(): boolean {
+    return this.isPlaying;
+  }
+
+  private scheduleNote(frequency: number, duration: number, startTime: number): void {
+    if (!this.audioContext || !this.masterGain) return;
+
+    // Create oscillator and gain nodes for this specific note
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+
+    // Set up the audio chain
+    oscillator.connect(gainNode);
+    gainNode.connect(this.masterGain);
+
+    // Configure oscillator
+    oscillator.type = this.settings.waveform;
+    oscillator.frequency.setValueAtTime(frequency, startTime);
+
+    // Clear envelope with small gap between notes
+    const noteDuration = Math.max(0.05, duration - 0.02); // 20ms gap between notes
+    const fadeIn = Math.min(0.005, noteDuration * 0.05); // Very quick fade in (5ms max)
+    const fadeOut = Math.min(0.01, noteDuration * 0.1); // Quick fade out (10ms max)
+
+    // Clean envelope for clarity
+    gainNode.gain.setValueAtTime(0, startTime);
+    gainNode.gain.linearRampToValueAtTime(0.7, startTime + fadeIn);
+    gainNode.gain.setValueAtTime(0.7, startTime + noteDuration - fadeOut);
+    gainNode.gain.linearRampToValueAtTime(0, startTime + noteDuration);
+
+    // Schedule the note
+    oscillator.start(startTime);
+    oscillator.stop(startTime + noteDuration);
+
+    // Track scheduled notes for pause functionality
+    this.scheduledNotes.push({ oscillator, gainNode });
+
+    // Clean up when finished
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      gainNode.disconnect();
+      // Remove from tracked notes
+      const index = this.scheduledNotes.findIndex(n => n.oscillator === oscillator);
+      if (index >= 0) {
+        this.scheduledNotes.splice(index, 1);
+      }
+      // Check if all notes finished
+      if (this.scheduledNotes.length === 0) {
+        this.isPlaying = false;
+      }
+    };
+  }
+
   destroy(): void {
-    this.stopCurrentNote();
+    this.stopAllNotes();
     if (this.audioContext) {
       this.audioContext.close();
       this.audioContext = null;

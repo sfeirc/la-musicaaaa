@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, Zap, Activity, TrendingDown, TrendingUp } from 'lucide-react';
+import { Volume2, Activity } from 'lucide-react';
 import { AudioSettings } from '@/types/music';
 
 interface AudioControlsProps {
@@ -12,10 +12,9 @@ interface AudioControlsProps {
 
 export default function AudioControls({ settings, onSettingsChange }: AudioControlsProps) {
   const waveformOptions: Array<{ value: AudioSettings['waveform']; label: string; description: string }> = [
-    { value: 'sine', label: 'Sinusoïdale', description: 'Son pur et lisse' },
-    { value: 'square', label: 'Carrée', description: 'Son numérique et net' },
-    { value: 'sawtooth', label: 'Dent de scie', description: 'Ton brillant et vibrant' },
-    { value: 'triangle', label: 'Triangulaire', description: 'Son doux et moelleux' },
+    { value: 'sine', label: 'Sinusoïdale', description: 'Son pur' },
+    { value: 'square', label: 'Carrée', description: 'Son numérique' },
+    { value: 'triangle', label: 'Triangulaire', description: 'Son doux' },
   ];
 
   const handleSliderChange = (key: keyof AudioSettings, value: number) => {
@@ -37,31 +36,31 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="border-t pt-4 mt-4 space-y-6"
+      className="border-t border-gray-600/50 pt-4 mt-4 space-y-4"
     >
-      <h4 className="font-bold text-gray-900 flex items-center gap-2 text-lg">
-        <Activity className="w-5 h-5" />
-        🎛️ Paramètres Audio
+      <h4 className="font-bold text-white flex items-center gap-2">
+        <Activity className="w-4 h-4" />
+        Paramètres Audio
       </h4>
 
       {/* Waveform Selection */}
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-3">
-          🌊 Forme d'onde
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Type de Son
         </label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {waveformOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => handleWaveformChange(option.value)}
-              className={`p-3 text-left rounded-lg border transition-all ${
+              className={`p-2 text-center rounded-lg border transition-all ${
                 settings.waveform === option.value
-                  ? 'border-blue-500 bg-blue-50 text-blue-900'
-                  : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                  ? 'border-blue-500 bg-blue-500/20 text-blue-300'
+                  : 'border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-300'
               }`}
             >
-              <div className="font-medium">{option.label}</div>
-              <div className="text-xs text-gray-500">{option.description}</div>
+              <div className="font-medium text-xs">{option.label}</div>
+              <div className="text-xs opacity-75 mt-0.5">{option.description}</div>
             </button>
           ))}
         </div>
@@ -69,9 +68,9 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
       {/* Volume Control */}
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
           <Volume2 className="w-4 h-4" />
-          🔊 Volume: {Math.round(settings.volume * 100)}%
+          Volume : {Math.round(settings.volume * 100)}%
         </label>
         <input
           type="range"
@@ -80,178 +79,10 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
           step="0.01"
           value={settings.volume}
           onChange={(e) => handleSliderChange('volume', parseFloat(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
         />
       </div>
 
-      {/* ADSR Envelope Controls */}
-      <div>
-        <h5 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <Zap className="w-4 h-4" />
-          ⚡ Enveloppe ADSR
-        </h5>
-        
-        <div className="grid grid-cols-2 gap-4">
-          {/* Attack */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />
-              📈 Attaque: {(settings.attack * 1000).toFixed(0)}ms
-            </label>
-            <input
-              type="range"
-              min="0.001"
-              max="1"
-              step="0.001"
-              value={settings.attack}
-              onChange={(e) => handleSliderChange('attack', parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
-
-          {/* Decay */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
-              <TrendingDown className="w-3 h-3" />
-              📉 Déclin: {(settings.decay * 1000).toFixed(0)}ms
-            </label>
-            <input
-              type="range"
-              min="0.001"
-              max="1"
-              step="0.001"
-              value={settings.decay}
-              onChange={(e) => handleSliderChange('decay', parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
-
-          {/* Sustain */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-2">
-              🔄 Maintien: {Math.round(settings.sustain * 100)}%
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={settings.sustain}
-              onChange={(e) => handleSliderChange('sustain', parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
-
-          {/* Release */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
-              <TrendingDown className="w-3 h-3" />
-              📉 Relâchement: {(settings.release * 1000).toFixed(0)}ms
-            </label>
-            <input
-              type="range"
-              min="0.001"
-              max="2"
-              step="0.001"
-              value={settings.release}
-              onChange={(e) => handleSliderChange('release', parseFloat(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ADSR Visualization */}
-      <div>
-        <h6 className="text-sm font-semibold text-gray-800 mb-3">📊 Forme de l'enveloppe</h6>
-        <div className="h-16 bg-gray-50 rounded border p-2">
-          <svg width="100%" height="100%" viewBox="0 0 400 48" className="overflow-visible">
-            {/* Grid lines */}
-            <defs>
-              <pattern id="envelope-grid" width="40" height="12" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 12" fill="none" stroke="#e5e7eb" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#envelope-grid)" />
-            
-            {/* ADSR Curve */}
-            <path
-              d={`M 0 48 
-                  L ${settings.attack * 100} 0 
-                  L ${(settings.attack + settings.decay) * 100} ${(1 - settings.sustain) * 48}
-                  L ${400 - settings.release * 100} ${(1 - settings.sustain) * 48}
-                  L 400 48`}
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-            
-            {/* Phase labels */}
-            <text x="10" y="44" fontSize="8" fill="#6b7280">A</text>
-            <text x={`${settings.attack * 100 + 5}`} y="44" fontSize="8" fill="#6b7280">D</text>
-            <text x="200" y="44" fontSize="8" fill="#6b7280">S</text>
-            <text x="380" y="44" fontSize="8" fill="#6b7280">R</text>
-          </svg>
-        </div>
-      </div>
-
-      {/* Presets */}
-      <div>
-        <label className="block text-sm font-bold text-gray-800 mb-3">
-          🎚️ Préréglages
-        </label>
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => onSettingsChange({
-              ...settings,
-              attack: 0.01,
-              decay: 0.1,
-              sustain: 0.7,
-              release: 0.3,
-            })}
-            className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-          >
-            Par défaut
-          </button>
-          <button
-            onClick={() => onSettingsChange({
-              ...settings,
-              attack: 0.001,
-              decay: 0.05,
-              sustain: 0.3,
-              release: 0.1,
-            })}
-            className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-          >
-            Pincé
-          </button>
-          <button
-            onClick={() => onSettingsChange({
-              ...settings,
-              attack: 0.5,
-              decay: 0.3,
-              sustain: 0.8,
-              release: 1.0,
-            })}
-            className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-          >
-            Nappe
-          </button>
-          <button
-            onClick={() => onSettingsChange({
-              ...settings,
-              attack: 0.001,
-              decay: 0.001,
-              sustain: 1.0,
-              release: 0.001,
-            })}
-            className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-          >
-            Orgue
-          </button>
-        </div>
-      </div>
     </motion.div>
   );
 }
