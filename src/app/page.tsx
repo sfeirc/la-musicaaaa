@@ -13,12 +13,14 @@ export default function Home() {
   const [error, setError] = useState<string>('');
 
   const examplePrompts = [
-    "Seven Nation Army-style riff ~120 bpm in A minor",
-    "Happy birthday melody in C major",
-    "Pachelbel's Canon opening progression",
-    "Simple blues scale riff in E minor",
-    "Twinkle Twinkle Little Star in F major",
-    "Dramatic minor chord progression",
+    "Riff style Seven Nation Army ~120 bpm en La mineur",
+    "Mélodie de Joyeux Anniversaire en Do majeur",
+    "Progression d'ouverture du Canon de Pachelbel",
+    "Riff simple en gamme blues Mi mineur",
+    "Ah! vous dirai-je, maman en Fa majeur",
+    "Progression d'accords dramatique en mineur",
+    "Mélodie de La Marseillaise en Sib majeur",
+    "Thème principal de l'Hymne à la joie"
   ];
 
   const generateArrangement = async () => {
@@ -65,8 +67,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 via-rose-50 to-blue-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-4 -left-4 w-96 h-96 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -right-8 w-80 h-80 bg-gradient-to-l from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-gradient-to-t from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        </div>
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -77,13 +85,14 @@ export default function Home() {
             <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full text-white">
               <Music className="w-8 h-8" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              GPT-4o Music Generator
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
+              Générateur Musical GPT-4o
             </h1>
           </div>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Transform your musical ideas into playable arrangements using GPT-4o's structured outputs. 
-            Type any musical request and get precise frequencies, durations, and real-time visualization.
+          <p className="text-gray-700 max-w-3xl mx-auto text-lg leading-relaxed">
+            Transformez vos idées musicales en arrangements jouables grâce aux sorties structurées de GPT-4o. 
+            Saisissez n'importe quelle demande musicale et obtenez des fréquences précises, des durées exactes, 
+            et une visualisation en temps réel époustouflante.
           </p>
         </motion.div>
 
@@ -94,45 +103,45 @@ export default function Home() {
           transition={{ delay: 0.1 }}
           className="max-w-4xl mx-auto mb-8"
         >
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 mb-2">
-                  Describe your musical arrangement
+                <label htmlFor="prompt" className="block text-sm font-semibold text-gray-800 mb-3">
+                  ✨ Décrivez votre arrangement musical
                 </label>
                 <div className="relative">
                   <textarea
                     id="prompt"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="e.g., Seven Nation Army-style riff ~120 bpm in A minor"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    placeholder="ex: Riff style Seven Nation Army ~120 bpm en La mineur, mélodie romantique en Do majeur..."
+                    className="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 resize-none transition-all duration-300 bg-white/80 backdrop-blur-sm text-gray-800 placeholder-gray-500"
                     rows={3}
                     disabled={isLoading}
                   />
                   <button
                     type="submit"
                     disabled={!prompt.trim() || isLoading}
-                    className="absolute bottom-3 right-3 flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg transition-colors"
+                    className="absolute bottom-4 right-4 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
                   >
-                    {isLoading ? (
-                      <>
-                        <Sparkles className="w-4 h-4 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Generate
-                      </>
-                    )}
+                      {isLoading ? (
+                        <>
+                          <Sparkles className="w-4 h-4 animate-spin" />
+                          Génération...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Générer
+                        </>
+                      )}
                   </button>
                 </div>
               </div>
 
               {/* Example Prompts */}
               <div>
-                <p className="text-sm text-gray-600 mb-2">Try these examples:</p>
+                <p className="text-sm font-medium text-gray-700 mb-3">🎵 Essayez ces exemples :</p>
                 <div className="flex flex-wrap gap-2">
                   {examplePrompts.map((example, index) => (
                     <button
@@ -140,7 +149,7 @@ export default function Home() {
                       type="button"
                       onClick={() => useExamplePrompt(example)}
                       disabled={isLoading}
-                      className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 text-gray-700 rounded-full transition-colors"
+                      className="text-xs px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-50 hover:from-purple-100 hover:to-blue-100 disabled:bg-gray-50 text-gray-700 hover:text-purple-700 rounded-full transition-all duration-300 border border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md"
                     >
                       {example}
                     </button>
@@ -154,15 +163,15 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3"
+                className="mt-6 p-6 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl flex items-start gap-3 shadow-lg"
               >
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-red-800 font-medium">Error generating arrangement</h4>
+                  <h4 className="text-red-800 font-semibold">Erreur lors de la génération de l'arrangement</h4>
                   <p className="text-red-700 text-sm mt-1">{error}</p>
                   {error.includes('OpenAI API key') && (
                     <p className="text-red-600 text-xs mt-2">
-                      Make sure to add your OpenAI API key to the `.env.local` file.
+                      Assurez-vous d'ajouter votre clé API OpenAI dans le fichier `.env.local`.
                     </p>
                   )}
                 </div>
@@ -189,36 +198,42 @@ export default function Home() {
             transition={{ delay: 0.3 }}
             className="max-w-4xl mx-auto mt-12"
           >
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center p-6 bg-white rounded-lg shadow">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-6 h-6 text-blue-600" />
+            <div className="grid md:grid-cols-3 gap-8">
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Sparkles className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">AI-Powered Generation</h3>
-                <p className="text-gray-600 text-sm">
-                  GPT-4o with structured outputs creates precise musical arrangements from natural language descriptions.
+                <h3 className="font-bold text-gray-900 mb-4 text-lg">🤖 Génération par IA</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  GPT-4o avec sorties structurées crée des arrangements musicaux précis à partir de descriptions en langage naturel.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="text-center p-6 bg-white rounded-lg shadow">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Music className="w-6 h-6 text-purple-600" />
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Music className="w-8 h-8 text-purple-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Real-time Playback</h3>
-                <p className="text-gray-600 text-sm">
-                  Web Audio API with ADSR envelope synthesis and customizable waveforms for high-quality sound.
+                <h3 className="font-bold text-gray-900 mb-4 text-lg">🎵 Lecture Temps Réel</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  API Web Audio avec synthèse d'enveloppe ADSR et formes d'onde personnalisables pour un son haute qualité.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="text-center p-6 bg-white rounded-lg shadow">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Send className="w-6 h-6 text-green-600" />
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Send className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Easy Export</h3>
-                <p className="text-gray-600 text-sm">
-                  Export to Python play_frequency() calls or JSON format for use in your own projects.
+                <h3 className="font-bold text-gray-900 mb-4 text-lg">📤 Export Facile</h3>
+                <p className="text-gray-700 leading-relaxed">
+                  Exportez vers des appels Python play_frequency() ou format JSON pour vos propres projets.
                 </p>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         )}

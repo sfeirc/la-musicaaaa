@@ -78,18 +78,18 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Piano Roll</h3>
+        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">🎹 Rouleau de Piano</h3>
         {playbackState.currentNoteIndex >= 0 && (
-          <div className="text-sm text-gray-600">
-            Now playing: {arrangement.notes[playbackState.currentNoteIndex]?.note_name || 
+          <div className="text-sm font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+            🎵 En cours: {arrangement.notes[playbackState.currentNoteIndex]?.note_name || 
               frequencyToNoteName(arrangement.notes[playbackState.currentNoteIndex]?.frequency || 440)}
           </div>
         )}
       </div>
 
-      <div className="relative overflow-x-auto overflow-y-hidden border rounded-lg bg-gray-50">
+      <div className="relative overflow-x-auto overflow-y-hidden border-2 border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-inner">
         <svg
           width={rollWidth + 100}
           height={rollHeight + 40}
@@ -233,18 +233,18 @@ export default function PianoRoll({ arrangement, playbackState }: PianoRollProps
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
+      <div className="mt-6 flex items-center justify-center gap-6 text-sm font-medium text-gray-700 bg-gray-50 rounded-xl p-4">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
-          <span>Notes</span>
+          <div className="w-4 h-4 bg-blue-500 rounded-full shadow-sm"></div>
+          <span>🎵 Notes</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-500 rounded"></div>
-          <span>Currently playing</span>
+          <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm animate-pulse"></div>
+          <span>🔴 En cours de lecture</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-gray-400 rounded"></div>
-          <span>Black keys</span>
+          <div className="w-4 h-4 bg-gray-600 rounded-full shadow-sm"></div>
+          <span>⬛ Touches noires</span>
         </div>
       </div>
     </div>

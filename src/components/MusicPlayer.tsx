@@ -173,9 +173,10 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
 
   if (!arrangement && !isLoading) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        <div className="text-6xl mb-4">🎵</div>
-        <p>Generate a musical arrangement to see the player</p>
+      <div className="text-center py-16 text-gray-600">
+        <div className="text-8xl mb-6">🎵</div>
+        <p className="text-xl font-medium">Générez un arrangement musical pour voir le lecteur</p>
+        <p className="text-gray-500 mt-2">Décrivez votre musique et laissez l'IA créer pour vous</p>
       </div>
     );
   }
@@ -192,11 +193,11 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {arrangement.title}
           </h2>
-          <div className="flex justify-center gap-6 text-sm text-gray-600">
-            <span>Key: {arrangement.key_signature}</span>
-            <span>Tempo: {arrangement.tempo_bpm} BPM</span>
-            <span>Duration: {arrangement.total_duration.toFixed(1)}s</span>
-            <span>Notes: {arrangement.notes.length}</span>
+          <div className="flex justify-center gap-6 text-sm text-gray-600 font-medium">
+            <span>🎼 Tonalité: {arrangement.key_signature}</span>
+            <span>🥁 Tempo: {arrangement.tempo_bpm} BPM</span>
+            <span>⏱️ Durée: {arrangement.total_duration.toFixed(1)}s</span>
+            <span>🎹 Notes: {arrangement.notes.length}</span>
           </div>
         </motion.div>
       )}
@@ -211,7 +212,7 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
             className="flex items-center justify-center py-8"
           >
             <Loader2 className="w-8 h-8 animate-spin text-blue-500 mr-3" />
-            <span className="text-gray-600">Generating musical arrangement...</span>
+            <span className="text-gray-600 font-medium">Génération de l'arrangement musical...</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -229,30 +230,30 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-lg p-6"
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={playbackState.isPlaying ? stopPlayback : playArrangement}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 {playbackState.isPlaying ? (
                   <>
                     <Square className="w-4 h-4" />
-                    Stop
+                    Arrêter
                   </>
                 ) : (
                   <>
                     <Play className="w-4 h-4" />
-                    Play
+                    Jouer
                   </>
                 )}
               </button>
 
               {playbackState.currentNoteIndex >= 0 && (
-                <div className="text-sm text-gray-600">
-                  Note {playbackState.currentNoteIndex + 1} of {arrangement.notes.length}
+                <div className="text-sm text-gray-600 font-medium">
+                  Note {playbackState.currentNoteIndex + 1} sur {arrangement.notes.length}
                 </div>
               )}
             </div>
@@ -267,7 +268,7 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
               
               <button
                 onClick={handleExportPython}
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-purple-700 rounded-xl hover:bg-purple-50 transition-all duration-300 border border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md"
               >
                 <Copy className="w-4 h-4" />
                 Python
@@ -275,7 +276,7 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
               
               <button
                 onClick={handleExportJSON}
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-700 rounded-xl hover:bg-blue-50 transition-all duration-300 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md"
               >
                 <Download className="w-4 h-4" />
                 JSON

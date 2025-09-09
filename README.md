@@ -1,72 +1,73 @@
-# GPT-4o Music Generator 🎵
+# Générateur Musical GPT-4o 🎵
 
-A Next.js application that transforms natural language descriptions into playable musical arrangements using GPT-4o's structured outputs. Features real-time Web Audio playback, piano roll visualization, and export capabilities.
+Une application Next.js qui transforme les descriptions en langage naturel en arrangements musicaux jouables grâce aux sorties structurées de GPT-4o. Fonctionnalités : lecture Web Audio en temps réel, visualisation piano roll, et capacités d'export.
 
-![GPT-4o Music Generator](https://img.shields.io/badge/GPT--4o-Music%20Generator-blue?style=for-the-badge&logo=openai)
+![Générateur Musical GPT-4o](https://img.shields.io/badge/GPT--4o-G%C3%A9n%C3%A9rateur%20Musical-blue?style=for-the-badge&logo=openai)
 
-## ✨ Features
+## ✨ Fonctionnalités
 
-- **AI-Powered Generation**: GPT-4o with structured outputs creates precise musical arrangements from natural language
-- **Real-time Playback**: Web Audio API with ADSR envelope synthesis and customizable waveforms  
-- **Visual Piano Roll**: Interactive piano roll with real-time note highlighting and playhead
-- **Export Options**: Copy Python `play_frequency()` calls or download JSON arrangements
-- **Audio Controls**: Customizable waveforms (sine, square, sawtooth, triangle) and ADSR envelope
-- **Beautiful UI**: Modern interface with Tailwind CSS and Framer Motion animations
+- **🤖 Génération par IA**: GPT-4o avec sorties structurées crée des arrangements musicaux précis à partir du langage naturel
+- **🎵 Lecture Temps Réel**: API Web Audio avec synthèse d'enveloppe ADSR et formes d'onde personnalisables
+- **🎹 Piano Roll Visuel**: Piano roll interactif avec surlignage des notes en temps réel et tête de lecture
+- **📤 Options d'Export**: Copiez les appels Python `play_frequency()` ou téléchargez les arrangements JSON
+- **🎛️ Contrôles Audio**: Formes d'onde personnalisables (sinusoïdale, carrée, dent de scie, triangulaire) et enveloppe ADSR
+- **✨ Interface Magnifique**: Interface moderne avec Tailwind CSS et animations Framer Motion
 
-## 🚀 Quick Start
+## 🚀 Démarrage Rapide
 
-### Prerequisites
+### Prérequis
 
 - Node.js 18+ 
-- OpenAI API key ([get one here](https://platform.openai.com/api-keys))
+- Clé API OpenAI ([obtenez-en une ici](https://platform.openai.com/api-keys))
 
 ### Installation
 
-1. **Clone and install dependencies:**
+1. **Clonez et installez les dépendances :**
    ```bash
    git clone https://github.com/sfeirc/la-musicaaaa.git
    cd la-musicaaaa
    npm install
    ```
 
-2. **Add your OpenAI API key:**
+2. **Ajoutez votre clé API OpenAI :**
    ```bash
-   # Create .env.local file
-   echo "OPENAI_API_KEY=sk-your-openai-api-key-here" > .env.local
+   # Créez le fichier .env.local
+   echo "OPENAI_API_KEY=sk-votre-cle-api-openai-ici" > .env.local
    ```
 
-3. **Run the development server:**
+3. **Lancez le serveur de développement :**
    ```bash
    npm run dev
    ```
 
-4. **Open [http://localhost:3000](http://localhost:3000)** in your browser
+4. **Ouvrez [http://localhost:3000](http://localhost:3000)** dans votre navigateur
 
-## 🎹 How to Use
+## 🎹 Comment Utiliser
 
-1. **Enter a musical prompt** like:
-   - "Seven Nation Army-style riff ~120 bpm in A minor"
-   - "Happy birthday melody in C major"  
-   - "Simple blues scale riff in E minor"
+1. **Saisissez une description musicale** comme :
+   - "Riff style Seven Nation Army ~120 bpm en La mineur"
+   - "Mélodie de Joyeux Anniversaire en Do majeur"  
+   - "Riff simple en gamme blues Mi mineur"
+   - "Mélodie de La Marseillaise en Sib majeur"
 
-2. **Click Generate** - GPT-4o creates a structured arrangement with precise frequencies and durations
+2. **Cliquez sur Générer** - GPT-4o crée un arrangement structuré avec des fréquences et durées précises
 
-3. **Play & Visualize** - Watch the piano roll visualization while the arrangement plays with Web Audio
+3. **Jouez & Visualisez** - Regardez la visualisation piano roll pendant que l'arrangement joue avec Web Audio
 
-4. **Customize Audio** - Adjust waveform, ADSR envelope, and volume settings
+4. **Personnalisez l'Audio** - Ajustez la forme d'onde, l'enveloppe ADSR, et les paramètres de volume
 
-5. **Export** - Copy Python code or download JSON for use in your projects
+5. **Exportez** - Copiez le code Python ou téléchargez le JSON pour vos projets
 
-## 🛠️ Technical Stack
+## 🛠️ Stack Technique
 
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
+- **Framework**: Next.js 14 avec App Router
+- **Langage**: TypeScript
+- **Style**: Tailwind CSS avec effets premium
 - **Animations**: Framer Motion
-- **AI**: OpenAI GPT-4o with Structured Outputs
-- **Audio**: Web Audio API
-- **Validation**: Zod schemas
-- **Icons**: Lucide React
+- **IA**: OpenAI GPT-4o avec Sorties Structurées
+- **Audio**: API Web Audio
+- **Validation**: Schémas Zod
+- **Icônes**: Lucide React
 
 ## 📁 Project Structure
 
@@ -87,34 +88,34 @@ src/
     └── exportUtils.ts         # Export functionality
 ```
 
-## 🎵 Example Outputs
+## 🎵 Exemples de Sorties
 
-### Python Export
+### Export Python
 ```python
-# Seven Nation Army-style riff ~120 bpm in A minor
-# Key: A minor, Tempo: 120 BPM
+# Riff style Seven Nation Army ~120 bpm en La mineur
+# Tonalité: La mineur, Tempo: 120 BPM
 
 def play_frequency(frequency, duration):
-    # Your audio implementation here
+    # Votre implémentation audio ici
     pass
 
-play_frequency(659.26, 0.20)  # E5
-play_frequency(659.26, 0.20)  # E5  
-play_frequency(659.26, 0.20)  # E5
-play_frequency(622.25, 0.30)  # D#5
+play_frequency(659.26, 0.20)  # Mi5
+play_frequency(659.26, 0.20)  # Mi5  
+play_frequency(659.26, 0.20)  # Mi5
+play_frequency(622.25, 0.30)  # Ré#5
 ```
 
-### JSON Export
+### Export JSON
 ```json
 {
-  "title": "Seven Nation Army-style riff",
+  "title": "Riff style Seven Nation Army",
   "tempo_bpm": 120,
-  "key_signature": "A minor",
+  "key_signature": "La mineur",
   "notes": [
     {
       "frequency": 659.26,
       "duration": 0.2,
-      "note_name": "E5"
+      "note_name": "Mi5"
     }
   ]
 }

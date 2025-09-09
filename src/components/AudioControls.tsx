@@ -12,10 +12,10 @@ interface AudioControlsProps {
 
 export default function AudioControls({ settings, onSettingsChange }: AudioControlsProps) {
   const waveformOptions: Array<{ value: AudioSettings['waveform']; label: string; description: string }> = [
-    { value: 'sine', label: 'Sine', description: 'Smooth, pure tone' },
-    { value: 'square', label: 'Square', description: 'Sharp, digital sound' },
-    { value: 'sawtooth', label: 'Sawtooth', description: 'Bright, buzzy tone' },
-    { value: 'triangle', label: 'Triangle', description: 'Soft, mellow sound' },
+    { value: 'sine', label: 'Sinusoïdale', description: 'Son pur et lisse' },
+    { value: 'square', label: 'Carrée', description: 'Son numérique et net' },
+    { value: 'sawtooth', label: 'Dent de scie', description: 'Ton brillant et vibrant' },
+    { value: 'triangle', label: 'Triangulaire', description: 'Son doux et moelleux' },
   ];
 
   const handleSliderChange = (key: keyof AudioSettings, value: number) => {
@@ -39,15 +39,15 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
       exit={{ opacity: 0, height: 0 }}
       className="border-t pt-4 mt-4 space-y-6"
     >
-      <h4 className="font-medium text-gray-900 flex items-center gap-2">
-        <Activity className="w-4 h-4" />
-        Audio Settings
+      <h4 className="font-bold text-gray-900 flex items-center gap-2 text-lg">
+        <Activity className="w-5 h-5" />
+        🎛️ Paramètres Audio
       </h4>
 
       {/* Waveform Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Waveform
+        <label className="block text-sm font-semibold text-gray-800 mb-3">
+          🌊 Forme d'onde
         </label>
         <div className="grid grid-cols-2 gap-2">
           {waveformOptions.map((option) => (
@@ -69,9 +69,9 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
       {/* Volume Control */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+        <label className="block text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
           <Volume2 className="w-4 h-4" />
-          Volume: {Math.round(settings.volume * 100)}%
+          🔊 Volume: {Math.round(settings.volume * 100)}%
         </label>
         <input
           type="range"
@@ -86,17 +86,17 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
       {/* ADSR Envelope Controls */}
       <div>
-        <h5 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+        <h5 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
           <Zap className="w-4 h-4" />
-          ADSR Envelope
+          ⚡ Enveloppe ADSR
         </h5>
         
         <div className="grid grid-cols-2 gap-4">
           {/* Attack */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              Attack: {(settings.attack * 1000).toFixed(0)}ms
+              📈 Attaque: {(settings.attack * 1000).toFixed(0)}ms
             </label>
             <input
               type="range"
@@ -111,9 +111,9 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
           {/* Decay */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
               <TrendingDown className="w-3 h-3" />
-              Decay: {(settings.decay * 1000).toFixed(0)}ms
+              📉 Déclin: {(settings.decay * 1000).toFixed(0)}ms
             </label>
             <input
               type="range"
@@ -128,8 +128,8 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
           {/* Sustain */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Sustain: {Math.round(settings.sustain * 100)}%
+            <label className="block text-xs font-semibold text-gray-700 mb-2">
+              🔄 Maintien: {Math.round(settings.sustain * 100)}%
             </label>
             <input
               type="range"
@@ -144,9 +144,9 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
           {/* Release */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
               <TrendingDown className="w-3 h-3" />
-              Release: {(settings.release * 1000).toFixed(0)}ms
+              📉 Relâchement: {(settings.release * 1000).toFixed(0)}ms
             </label>
             <input
               type="range"
@@ -163,7 +163,7 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
       {/* ADSR Visualization */}
       <div>
-        <h6 className="text-xs font-medium text-gray-600 mb-2">Envelope Shape</h6>
+        <h6 className="text-sm font-semibold text-gray-800 mb-3">📊 Forme de l'enveloppe</h6>
         <div className="h-16 bg-gray-50 rounded border p-2">
           <svg width="100%" height="100%" viewBox="0 0 400 48" className="overflow-visible">
             {/* Grid lines */}
@@ -198,8 +198,8 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
 
       {/* Presets */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Presets
+        <label className="block text-sm font-bold text-gray-800 mb-3">
+          🎚️ Préréglages
         </label>
         <div className="flex gap-2 flex-wrap">
           <button
@@ -212,7 +212,7 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
             })}
             className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
           >
-            Default
+            Par défaut
           </button>
           <button
             onClick={() => onSettingsChange({
@@ -224,7 +224,7 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
             })}
             className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
           >
-            Pluck
+            Pincé
           </button>
           <button
             onClick={() => onSettingsChange({
@@ -236,7 +236,7 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
             })}
             className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
           >
-            Pad
+            Nappe
           </button>
           <button
             onClick={() => onSettingsChange({
@@ -248,7 +248,7 @@ export default function AudioControls({ settings, onSettingsChange }: AudioContr
             })}
             className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
           >
-            Organ
+            Orgue
           </button>
         </div>
       </div>

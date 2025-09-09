@@ -9,19 +9,19 @@ const openai = new OpenAI({
 
 // Define the schema for a single note
 const NoteSchema = z.object({
-  frequency: z.number().min(20).max(20000).describe("Frequency in Hz (20-20000)"),
-  duration: z.number().min(0.01).max(10).describe("Duration in seconds (0.01-10)"),
-  note_name: z.string().optional().describe("Optional note name like 'C4', 'F#5', etc."),
-  is_rest: z.boolean().optional().describe("True if this is a rest/pause"),
+  frequency: z.number().min(20).max(20000).describe("Fréquence en Hz (20-20000)"),
+  duration: z.number().min(0.01).max(10).describe("Durée en secondes (0.01-10)"),
+  note_name: z.string().optional().describe("Nom de la note optionnel comme 'Do4', 'Fa#5', etc."),
+  is_rest: z.boolean().optional().describe("Vrai si c'est un silence/pause"),
 });
 
 // Define the schema for the complete arrangement
 const ArrangementSchema = z.object({
-  title: z.string().describe("Title or description of the musical arrangement"),
-  tempo_bpm: z.number().min(60).max(200).describe("Tempo in beats per minute"),
-  key_signature: z.string().describe("Key signature like 'C major', 'A minor', etc."),
-  notes: z.array(NoteSchema).min(1).max(100).describe("Array of notes in sequence"),
-  total_duration: z.number().describe("Total duration of the arrangement in seconds"),
+  title: z.string().describe("Titre ou description de l'arrangement musical"),
+  tempo_bpm: z.number().min(60).max(200).describe("Tempo en battements par minute"),
+  key_signature: z.string().describe("Tonalité comme 'Do majeur', 'La mineur', etc."),
+  notes: z.array(NoteSchema).min(1).max(100).describe("Tableau de notes en séquence"),
+  total_duration: z.number().describe("Durée totale de l'arrangement en secondes"),
 });
 
 export async function POST(request: NextRequest) {
@@ -31,38 +31,40 @@ export async function POST(request: NextRequest) {
 
     if (!prompt || typeof prompt !== 'string') {
       return NextResponse.json(
-        { error: 'Prompt is required and must be a string' },
+        { error: 'Une description musicale est requise et doit être une chaîne de caractères' },
         { status: 400 }
       );
     }
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
+        { error: 'Clé API OpenAI non configurée' },
         { status: 500 }
       );
     }
 
     // Create the system prompt for music generation
-    const systemPrompt = `You are a musical composer AI that creates precise musical arrangements.
+    const systemPrompt = `Vous êtes un compositeur IA qui crée des arrangements musicaux précis.
 
-Given a user's musical request, generate a sequence of notes with exact frequencies and durations.
+À partir de la demande musicale de l'utilisateur, générez une séquence de notes avec des fréquences et durées exactes.
 
-Guidelines:
-- Use standard Western musical frequencies (A4 = 440Hz)
-- Keep arrangements between 5-50 notes for playability
-- Include rests (is_rest: true) for musical phrasing
-- Use realistic durations (0.1-2.0 seconds typically)
-- Match the requested style, tempo, and key
-- For riffs/melodies, use repetition and variation
-- For chord progressions, use appropriate harmonic intervals
+Directives:
+- Utilisez les fréquences musicales occidentales standard (La4 = 440Hz)
+- Gardez les arrangements entre 5-50 notes pour la jouabilité
+- Incluez des silences (is_rest: true) pour le phrasé musical
+- Utilisez des durées réalistes (0.1-2.0 secondes typiquement)
+- Respectez le style, tempo et tonalité demandés
+- Pour les riffs/mélodies, utilisez répétition et variation
+- Pour les progressions d'accords, utilisez des intervalles harmoniques appropriés
 
-Common frequency references:
-- C4: 261.63 Hz, D4: 293.66 Hz, E4: 329.63 Hz, F4: 349.23 Hz
-- G4: 392.00 Hz, A4: 440.00 Hz, B4: 493.88 Hz
-- C5: 523.25 Hz, etc.
+Références de fréquences courantes:
+- Do4: 261.63 Hz, Ré4: 293.66 Hz, Mi4: 329.63 Hz, Fa4: 349.23 Hz
+- Sol4: 392.00 Hz, La4: 440.00 Hz, Si4: 493.88 Hz
+- Do5: 523.25 Hz, etc.
 
-Always provide note_name when possible (e.g., "C4", "F#5").`;
+Fournissez toujours note_name quand possible (ex: "Do4", "Fa#5").
+
+Répondez en français pour les titres et descriptions.`;
 
     const completion = await openai.beta.chat.completions.parse({
       model: "gpt-4o-2024-08-06",
@@ -90,7 +92,7 @@ Always provide note_name when possible (e.g., "C4", "F#5").`;
     const arrangement = completion.choices[0]?.message?.parsed;
 
     if (!arrangement) {
-      throw new Error('Failed to generate musical arrangement');
+      throw new Error('Échec de la génération de l\'arrangement musical');
     }
 
     // Validate the generated arrangement
@@ -103,12 +105,12 @@ Always provide note_name when possible (e.g., "C4", "F#5").`;
     });
 
   } catch (error) {
-    console.error('Error generating musical arrangement:', error);
+    console.error('Erreur lors de la génération de l\'arrangement musical:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { 
-          error: 'Invalid arrangement format',
+          error: 'Format d\'arrangement invalide',
           details: error.errors 
         },
         { status: 422 }
@@ -117,8 +119,8 @@ Always provide note_name when possible (e.g., "C4", "F#5").`;
 
     return NextResponse.json(
       { 
-        error: 'Failed to generate musical arrangement',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Échec de la génération de l\'arrangement musical',
+        message: error instanceof Error ? error.message : 'Erreur inconnue'
       },
       { status: 500 }
     );
