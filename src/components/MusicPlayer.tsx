@@ -105,7 +105,7 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
     }
   };
 
-  const trackPlaybackProgress = (notes: typeof arrangement.notes) => {
+  const trackPlaybackProgress = (notes: Arrangement['notes']) => {
     let cumulativeTime = 0;
     let currentNoteIndex = 0;
     
