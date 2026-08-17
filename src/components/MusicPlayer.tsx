@@ -106,8 +106,8 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
   };
 
   const trackPlaybackProgress = (notes: Arrangement['notes']) => {
-    let cumulativeTime = 0;
-    let currentNoteIndex = 0;
+    const cumulativeTime = 0;
+    const currentNoteIndex = 0;
     
     const updateProgress = () => {
       if (!isPlayingRef.current) return;
@@ -232,7 +232,7 @@ export default function MusicPlayer({ arrangement, isLoading }: MusicPlayerProps
             className="flex items-center justify-center py-12"
           >
             <Loader2 className="w-6 h-6 animate-spin text-blue-400 mr-3" />
-            <span className="text-gray-300">Création de l'arrangement...</span>
+            <span className="text-gray-300">Création de l&apos;arrangement...</span>
           </motion.div>
         )}
       </AnimatePresence>

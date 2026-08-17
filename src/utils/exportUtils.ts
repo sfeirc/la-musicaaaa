@@ -132,7 +132,7 @@ function encodeVariableLength(value: number): number[] {
   return result;
 }
 
-export function downloadFile(content: string | Uint8Array, filename: string, mimeType: string): void {
+export function downloadFile(content: string | Uint8Array<ArrayBuffer>, filename: string, mimeType: string): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   

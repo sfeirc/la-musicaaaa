@@ -274,7 +274,7 @@ Répondez en français pour les titres et descriptions.`;
 
     // Gérer les erreurs spécifiques de l'API OpenAI
     if (error && typeof error === 'object' && 'status' in error) {
-      const apiError = error as any;
+      const apiError = error as { status: number };
       if (apiError.status === 401) {
         return NextResponse.json(
           { 

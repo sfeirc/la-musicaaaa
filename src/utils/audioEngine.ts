@@ -17,7 +17,13 @@ export class AudioEngine {
     if (this.audioContext) return;
 
     try {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const webkitAudioContext = (window as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+      const AudioContextClass = window.AudioContext || webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error('Web Audio API is not supported in this browser');
+      }
+      this.audioContext = new AudioContextClass();
       this.masterGain = this.audioContext.createGain();
       this.masterGain.connect(this.audioContext.destination);
       this.masterGain.gain.value = this.settings.volume;
